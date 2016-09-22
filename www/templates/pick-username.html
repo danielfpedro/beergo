@@ -1,12 +1,14 @@
 
 <ion-view view-title="Escolher Username">
     <ion-content>
-
-		<div class="list">
-			<label class="item item-input">
-				<input type="text" placeholder="Username">
-			</label>
-		</div>  	
+		<form ng-submit="updateUsername()">
+			<div class="list">
+				<label class="item item-input">
+					<input type="text" placeholder="Username" ng-model="data.username">
+				</label>
+				<button class="button button-assertive button-full">OK</button>
+			</div>  	
+		</form>
 
     </ion-content>
 </ion-view>

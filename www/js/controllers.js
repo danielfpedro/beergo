@@ -27,18 +27,22 @@ angular.module('starter.controllers', [])
     $state,
     $ionicHistory,
     $ionicLoading,
-    $timeout,
-    $window,
-    $timeout
+    $window
 ) {
-    $timeout(function(){
-        FB.login(function(response){
-            console.log(response);
-        }, {scope: 'email,public_profile'});
-    }, 3000);
+
+    // $timeout(function(){
+    //     FB.login(function(response){
+    //         console.log(response);
+    //     }, {scope: 'email,public_profile'});
+    // }, 3000);
     $scope.error = null;
 
+    $scope.doLogout = function() {
+        FB.logout();
+    }
+
     $scope.doLogin = function() {
+
         $ionicLoading.show({
             template: 'Entrando, aguarde...'
         });
@@ -62,7 +66,23 @@ angular.module('starter.controllers', [])
 })
 
 .controller('PickUsernameController', function(
-    $scope
+    $scope,
+    $ionicLoading,
+    Me
 ) {
+    $scope.data = {};
 
+    $scope.updateUsername = function() {
+        $ionicLoading.show({
+            template: 'Entrando, aguarde...'
+        });
+        console.log('Update username');
+        Me.updateUsername($scope.data.username)
+            .then(function(){
+
+            })
+            .finally(function(){
+                $ionicLoading.hide();
+            });
+    }
 });

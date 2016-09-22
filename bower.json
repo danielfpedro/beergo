@@ -6,6 +6,8 @@
   },
   "dependencies": {
     "angular-facebook": "^0.2.3",
-    "angular-easyfb": "^1.5.1"
+    "angular-easyfb": "^1.5.1",
+    "a0-angular-storage": "^0.0.15",
+    "angular-jwt": "^0.1.3"
   }
 }

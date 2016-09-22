@@ -9,9 +9,11 @@
 const DEBUG  = true;
 
 angular.module('starter', [
-'ionic',
-'starter.controllers',
-'starter.services'
+    'ionic',
+    'starter.controllers',
+    'starter.services',
+    'angular-storage',
+    'angular-jwt'
 ])
 
 .constant('CONFIG', {
@@ -22,6 +24,20 @@ angular.module('starter', [
     $ionicPlatform,
     $window
 ) {
+
+    if (DEBUG) {
+        $window.fbAsyncInit = function() {
+            FB.init({ 
+              appId: '2079156488976765',
+              status: true, 
+              cookie: true, 
+              xfbml: true,
+              version: 'v2.4'
+            });
+        };        
+    }
+
+
     $ionicPlatform.ready(function() {
         // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
         // for form inputs)
@@ -35,72 +51,29 @@ angular.module('starter', [
             StatusBar.styleDefault();
         }
     });
-
-    // Somente DEV
-    $window.fbAsyncInit = function() {
-        // Executed when the SDK is loaded
-
-        FB.init({
-
-          appId: '2079156488976765',
-
-          /*
-           Adding a Channel File improves the performance
-           of the javascript SDK, by addressing issues
-           with cross-domain communication in certain browsers.
-          */
-
-          channelUrl: 'app/channel.html',
-
-          /*
-           Set if you want to check the authentication status
-           at the start up of the app
-          */
-
-          status: true,
-
-          /*
-           Enable cookies to allow the server to access
-           the session
-          */
-
-          cookie: true,
-
-          /* Parse XFBML */
-
-          xfbml: true
-        });
-
-        // sAuth.watchAuthenticationStatusChange();
-
-    };
-
-      (function(d){
-        // load the Facebook javascript SDK
-
-        var js,
-        id = 'facebook-jssdk',
-        ref = d.getElementsByTagName('script')[0];
-
-        if (d.getElementById(id)) {
-          return;
-        }
-
-        js = d.createElement('script');
-        js.id = id;
-        js.async = true;
-        js.src = "//connect.facebook.net/en_US/all.js";
-
-        ref.parentNode.insertBefore(js, ref);
-
-      }(document));
-
 })
 
 .config(function(
     $stateProvider,
-    $urlRouterProvider
+    $urlRouterProvider,
+    $httpProvider
 ) {
+
+    $httpProvider.interceptors.push(['$q', '$location', 'store', function($q, $location, store) {
+        return {
+            'request': function (config) {
+                // console.log(config);
+                config.headers = config.headers || {};
+                var jwt = store.get('jwt'); 
+                if (jwt) {
+                    config.headers.Authorization = 'Bearer ' + jwt;
+                    config.url = config.url + '?token=' + jwt
+                }
+                return config;
+            }
+        };
+    }]);
+
     // Ionic uses AngularUI Router which uses the concept of states
     // Learn more here: https://github.com/angular-ui/ui-router
     // Set up the various states which the app can be in.

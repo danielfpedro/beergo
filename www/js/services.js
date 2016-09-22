@@ -4,7 +4,8 @@ angular.module('starter.services', [])
 	$http,
 	$q,
 	CONFIG,
-	$window
+	$window,
+	store
 ) {
 	return {
 		login: function(){
@@ -15,9 +16,12 @@ angular.module('starter.services', [])
 				.then(function(token){
 					console.log(token);
 
-					$http.get(CONFIG.WEBSERVICE_BASE_URL + 'usuarios/token.json?access_token=' + token)
+					$http.post(CONFIG.WEBSERVICE_BASE_URL + 'usuarios/token.json', {
+							access_token: token
+						})
 						.then(function(response){
 							console.log(response.data.token);
+							store.set('jwt', response.data.token);
 							defer.resolve();
 						}, function(error) {
 							console.log(error);
@@ -31,22 +35,41 @@ angular.module('starter.services', [])
 		},
 		getAccessToken: function() {
 			var defer = $q.defer();
-			defer.resolve();
 
-			// ezfb.getLoginStatus(function(response) {
-			// 	if(response.status === 'connected') {
-			// 		ezfb.api('/me?fields=email,name', function(response) {
-			// 			console.log(response);
-			// 		});
-			// 	} else {
-			// 		ezfb.login(function(response) {
-			// 			// Do something with response.
-			// 			// console.log(response.authResponse.accessToken);
-			// 			this.getAccessToken();
-			// 			// defer.resolve(response.authResponse.accessToken);
-			// 		}, {scope: 'email,public_profile'});
-			// 	}
-			// });
+	        FB.login(function(data) {
+	        	defer.resolve(data.authResponse.accessToken);
+	        	// console.log(data.authResponse.accessToken);
+	        	// defer.reject();
+	         //    FB.api('/me?fields=email,name', function(response) {
+	         //        console.log(response);
+	         //    });                
+	        }, {scope: 'email,public_profile'});
+
+			return defer.promise;
+		}
+	}
+})
+
+.factory('Me', function(
+	$q,
+    $http,
+    store,
+    CONFIG
+) {
+	return {
+		updateUsername: function(username){
+			console.log('Fazendo o update do Username', username);
+			var defer = $q.defer();
+
+			$http.post(CONFIG.WEBSERVICE_BASE_URL + 'usuarios/update-username.json', {
+					username: username
+				})
+				.then(function(response){
+					defer.resolve();
+				}, function(error) {
+					console.log(error);
+					defer.reject(error);
+				});
 
 			return defer.promise;
 		}
